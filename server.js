@@ -1,35 +1,60 @@
-const express = require("express");
-const cors = require("cors");
-const { exec } = require("child_process");
+import express from "express";
+import cors from "cors";
+import { exec } from "child_process";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.post("/download", (req, res) => {
-    const { url, format, quality } = req.body;
+  const { url, format, quality } = req.body;
 
-    if (!url) {
-        return res.status(400).json({ error: "URL is required" });
+  if (!url) {
+    return res.status(400).json({ error: "URL no proporcionada" });
+  }
+
+  // Directorio temporal donde se descargará el video
+  const outputDir = "./downloads";
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+
+  // Nombre del archivo de salida
+  const filename = `video_${Date.now()}.${format}`;
+  const outputPath = path.join(outputDir, filename);
+
+  // Comando para descargar el video con yt-dlp
+  const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputPath}" "${url}"`;
+
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error descargando el video: ${stderr}`);
+      return res.status(500).json({ error: "Error al descargar el video" });
     }
 
-    const videoFormat = format || "mp4";
-    const videoQuality = quality || "720"; 
+    console.log(`Video descargado: ${outputPath}`);
 
-    
-    console.log ( "Url Recibida:", url, format, quality, " Iniciando Descarga");
+    // Enviar el archivo al usuario y luego eliminarlo
+    res.download(outputPath, filename, (err) => {
+      if (err) {
+        console.error("Error al enviar el archivo:", err);
+      }
 
-    const command = `yt-dlp -f "bestvideo[ext=${videoFormat}][height=${videoQuality}]+bestaudio[ext=m4a]/best" --merge-output-format ${videoFormat} -o "downloads/%(title)s.%(ext)s" "${url}"`;
-
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            return res.status(500).json({ error: stderr });
+      // Eliminar el archivo después de enviarlo
+      fs.unlink(outputPath, (unlinkErr) => {
+        if (unlinkErr) {
+          console.error("Error al eliminar el archivo:", unlinkErr);
+        } else {
+          console.log(`Archivo eliminado: ${outputPath}`);
         }
-        res.json({ message: "Descarga finalizada", details: stdout }); 
+      });
     });
+  });
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
