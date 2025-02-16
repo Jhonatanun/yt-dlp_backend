@@ -69,6 +69,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+exec("yt-dlp --version", (error, stdout, stderr) => {
+  if (error) {
+    console.error(`Error ejecutando yt-dlp: ${stderr}`);
+  } else {
+    console.log(`yt-dlp versión instalada: ${stdout}`);
+  }
+});
+
+
 app.post("/download", async (req, res) => {
   const { url, format, quality } = req.body;
 
