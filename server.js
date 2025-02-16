@@ -63,6 +63,7 @@ import cors from "cors";
 import ytdlp from "yt-dlp-exec";
 import fs from "fs";
 import path from "path";
+import { exec } from "child_process";
 
 const app = express();
 app.use(cors());
@@ -111,6 +112,16 @@ app.post("/download", async (req, res) => {
   } catch (error) {
     console.error(`Error descargando el video: ${error.message}`);
     res.status(500).json({ error: "Error al descargar el video" });
+  }
+});
+
+
+
+exec(`yt-dlp -v`, (error, stdout, stderr) => {
+  if (error) {
+    console.error("yt-dlp no está instalado o no se puede ejecutar.");
+  } else {
+    console.log(`yt-dlp versión: ${stdout}`);
   }
 });
 
