@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm install yt-dlp && nodemon server.js"
+    "start": "npm install yt-dlp && nodemon server.js",
+    "postinstall": "pip install yt-dlp"
   },
   "keywords": [],
   "author": "",
