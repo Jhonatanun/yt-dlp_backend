@@ -69,6 +69,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 exec("yt-dlp --version", (error, stdout, stderr) => {
   if (error) {
     console.error(`Error ejecutando yt-dlp: ${stderr}`);
@@ -77,6 +78,10 @@ exec("yt-dlp --version", (error, stdout, stderr) => {
   }
 });
 
+
+
+// Servir archivos estáticos desde la carpeta "downloads"
+app.use("/downloads", express.static("downloads"));
 
 app.post("/download", async (req, res) => {
   const { url, format, quality } = req.body;
@@ -104,11 +109,28 @@ app.post("/download", async (req, res) => {
 
     console.log(`Video descargado: ${outputPath}`);
 
-    res.download(outputPath, filename, (err) => {
-      if (err) {
-        console.error("Error al enviar el archivo:", err);
-      }
+    // res.download(outputPath, filename, (err) => {
+    //   if (err) {
+    //     console.error("Error al enviar el archivo:", err);
+    //   }
 
+    //   fs.unlink(outputPath, (unlinkErr) => {
+    //     if (unlinkErr) {
+    //       console.error("Error al eliminar el archivo:", unlinkErr);
+    //     } else {
+    //       console.log(`Archivo eliminado: ${outputPath}`);
+    //     }
+    //   });
+    // });
+
+    // Generar URL de descarga antes de eliminar el archivo
+    const fileUrl = `${req.protocol}://${req.get("host")}/downloads/${filename}`;
+
+    // Enviar la URL al frontend en lugar de hacer res.download directamente
+    res.json({ success: true, downloadUrl: fileUrl });
+
+    // Esperar un tiempo antes de eliminar el archivo (ejemplo: 1 minuto)
+    setTimeout(() => {
       fs.unlink(outputPath, (unlinkErr) => {
         if (unlinkErr) {
           console.error("Error al eliminar el archivo:", unlinkErr);
@@ -116,7 +138,7 @@ app.post("/download", async (req, res) => {
           console.log(`Archivo eliminado: ${outputPath}`);
         }
       });
-    });
+    }, 60000); // 60,000 ms = 1 minuto
   });
 });
 
