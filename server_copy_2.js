@@ -33,3 +33,20 @@ const PORT = 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
+// Uso del res.download para descargar mi video desde el fronted
+
+// res.download(outputPath, filename, (err) => {
+    //   if (err) {
+    //     console.error("Error al enviar el archivo:", err);
+    //   }
+
+    //   fs.unlink(outputPath, (unlinkErr) => {
+    //     if (unlinkErr) {
+    //       console.error("Error al eliminar el archivo:", unlinkErr);
+    //     } else {
+    //       console.log(`Archivo eliminado: ${outputPath}`);
+    //     }
+    //   });
+    // });
