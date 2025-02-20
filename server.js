@@ -68,6 +68,14 @@ import path from "path";
 const app = express();
 app.use(cors());
 app.use(
+  cors({
+    origin: "*", // Permite todas las solicitudes
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
+app.use(
   "/downloads",
   express.static("downloads", {
     setHeaders: (res, path) => {
