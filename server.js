@@ -84,13 +84,23 @@ app.use(
     allowedHeaders: ["Content-Type"],
   })
 );
-app.get("/downloads/:filename", (req, res, next) => {
+app.get("/downloads/:filename", (req, res) => {
+  const filePath = path.join("downloads", req.params.filename);
+
+  // Verificar si el archivo existe antes de enviarlo
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "Archivo no encontrado" });
+  }
+
+  // Configurar cabeceras adecuadas para evitar problemas de CORS
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET");
   res.header("Access-Control-Allow-Headers", "Content-Type");
-  res.header("Content-Disposition", "attachment"); // Forzar la descarga del archivo
-  next();
-}, express.static("downloads"));
+  res.header("Content-Disposition", `attachment; filename="${req.params.filename}"`);
+
+  res.sendFile(filePath, { root: "." }); // Enviar el archivo correctamente
+});
+
 
 app.use(express.json());
 
@@ -124,8 +134,8 @@ app.post("/download", async (req, res) => {
     console.log(`Video descargado: ${outputPath}`);
 
     // URL de descarga dinámica (considera HTTPS si está en producción)
-    const protocol = req.protocol;
-    const fileUrl = `${protocol}://${req.get("host")}/downloads/${filename}`;
+    const fileUrl = `https://${req.get("host")}/downloads/${filename}`;
+
 
     res.json({ success: true, downloadUrl: fileUrl });
 
