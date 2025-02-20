@@ -45,7 +45,7 @@ app.use(express.json());
 
 app.post("/download", async (req, res) => {
   console.log("Petición de descarga realizada con exito.")
-  console.log("Esta es la URL del video a descargar:", url)
+  
 
   const { url, format = "mp4", quality = "720" } = req.body;
 
@@ -53,6 +53,8 @@ app.post("/download", async (req, res) => {
   if (!url || typeof url !== "string" || !/^https?:\/\/.+/.test(url)) {
     return res.status(400).json({ error: "URL no válida" });
   }
+
+  console.log("Esta es la URL del video a descargar:", url);
 
   const outputDir = "./downloads";
   if (!fs.existsSync(outputDir)) {
@@ -62,7 +64,7 @@ app.post("/download", async (req, res) => {
   const filename = `video_${Date.now()}.${format}`;
   const outputPath = path.join(outputDir, filename);
 
-  console.log(`Iniciando descarga: ${url}`);
+  console.log(`Iniciando extracion del video: ${url}`);
 
   // Ejecutar yt-dlp con formato seguro
   const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputPath}" "${url}"`;
@@ -77,9 +79,11 @@ app.post("/download", async (req, res) => {
 
     // URL de descarga dinámica (considera HTTPS si está en producción)
     const fileUrl = `https://${req.get("host")}/downloads/${filename}`;
-    console.log("Url de descarga generada con exito: Url,", fileUrl)
+    console.log("Url para descargar el video extraido: ", fileUrl);
+
     res.json({ success: true, downloadUrl: fileUrl });
 
+    console.log(" Tienes 3 minutos para descargar el video, despues de este tiempo no prodras descargarlo")
     // Programar eliminación del archivo tras 2 minutos
     setTimeout(() => {
       fs.access(outputPath, fs.constants.F_OK, (err) => {
@@ -93,7 +97,7 @@ app.post("/download", async (req, res) => {
           });
         }
       });
-    }, 180000); // 180,000 ms = 3 minutos
+    }, 120000); // 120,000 ms = 2 minutos
   });
 });
 
