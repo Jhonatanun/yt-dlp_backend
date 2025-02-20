@@ -84,8 +84,14 @@ app.use(
     allowedHeaders: ["Content-Type"],
   })
 );
+app.get("/downloads/:filename", (req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Content-Disposition", "attachment"); // Forzar la descarga del archivo
+  next();
+}, express.static("downloads"));
 
-app.use("/downloads", express.static("downloads"));
 app.use(express.json());
 
 app.post("/download", async (req, res) => {
