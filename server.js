@@ -67,7 +67,18 @@ import path from "path";
 
 const app = express();
 app.use(cors());
+app.use(
+  "/downloads",
+  express.static("downloads", {
+    setHeaders: (res, path) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    },
+  })
+);
 app.use(express.json());
+
 
 
 exec("yt-dlp --version", (error, stdout, stderr) => {
@@ -80,8 +91,8 @@ exec("yt-dlp --version", (error, stdout, stderr) => {
 
 
 
-// Servir archivos estáticos desde la carpeta "downloads"
-app.use("/downloads", express.static("downloads"));
+// // Servir archivos estáticos desde la carpeta "downloads"
+// app.use("/downloads", express.static("downloads"));
 
 app.post("/download", async (req, res) => {
   const { url, format, quality } = req.body;
@@ -94,7 +105,7 @@ app.post("/download", async (req, res) => {
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
   }
-
+  console.log("Iniciando descarga");
   const filename = `video_${Date.now()}.${format}`;
   const outputPath = path.join(outputDir, filename);
 
@@ -102,11 +113,12 @@ app.post("/download", async (req, res) => {
   const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputPath}" "${url}"`;
 
   exec(command, (error, stdout, stderr) => {
+    
     if (error) {
       console.error(`Error descargando el video: ${stderr}`);
       return res.status(500).json({ error: "Error al descargar el video" });
     }
-
+    
     console.log(`Video descargado: ${outputPath}`);
 
     // res.download(outputPath, filename, (err) => {
