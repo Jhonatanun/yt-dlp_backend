@@ -83,7 +83,7 @@ app.post("/download", async (req, res) => {
 
     res.json({ success: true, downloadUrl: fileUrl });
 
-    console.log(" Tienes 3 minutos para descargar el video, despues de este tiempo no prodras descargarlo")
+    console.log(" Tienes 7 minutos para descargar el video, despues de este tiempo no prodras descargarlo")
     // Programar eliminación del archivo tras 2 minutos
     setTimeout(() => {
       fs.access(outputPath, fs.constants.F_OK, (err) => {
@@ -97,7 +97,7 @@ app.post("/download", async (req, res) => {
           });
         }
       });
-    }, 300000); // 300,000 ms = 5 minutos
+    }, 420000); // 420,000 ms = 7 minutos
   });
 });
 
