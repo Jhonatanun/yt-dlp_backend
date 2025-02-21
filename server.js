@@ -64,7 +64,7 @@ app.post("/download", async (req, res) => {
   const filename = `video_${Date.now()}.${format}`;
   const outputPath = path.join(outputDir, filename);
 
-  console.log(`Iniciando extracion del video: ${url}`);
+  console.log("Iniciandio extracción del video");
 
   // Ejecutar yt-dlp con formato seguro
   const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputPath}" "${url}"`;
@@ -97,7 +97,7 @@ app.post("/download", async (req, res) => {
           });
         }
       });
-    }, 120000); // 120,000 ms = 2 minutos
+    }, 300000); // 300,000 ms = 5 minutos
   });
 });
 
